@@ -8,6 +8,8 @@ namespace UniAgile.Dependency
     {
         public DependencyService(IReadOnlyList<IDependencyInfo> dependencies)
         {
+            if (dependencies == null) throw new NullReferenceException();
+
             for (var i = 0; i < dependencies.Count; i++)
             {
                 var dependency     = dependencies[i];
@@ -104,6 +106,9 @@ namespace UniAgile.Dependency
 
             currentlyResolving.Add(dependency.Type);
             var dependencyInstance = dependency.Factory(service);
+
+            if (dependencyInstance == null) throw new Exception($"Created instance was null for type {dependency.Type}");
+
             currentlyResolving.Remove(dependency.Type);
 
 

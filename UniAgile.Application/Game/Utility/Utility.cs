@@ -5,7 +5,6 @@ using System.Reflection;
 
 namespace UniAgile.Game
 {
-
     public static class Utility
     {
         public static T OptimisticGet<T>(this IDictionary<Type, object> values,

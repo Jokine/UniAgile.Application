@@ -37,6 +37,7 @@ namespace UniAgile.Game
             var changes = CurrentData.Select(kvp => new DataChange<T>
             {
                 Id         = kvp.Key,
+                Old        = kvp.Value,
                 ChangeType = ChangeType.Remove
             });
 
@@ -141,10 +142,10 @@ namespace UniAgile.Game
 
         public Type RepositoryType => typeof(T);
 
-        public void CommitData(ulong         commitId,
-                               IDataRecorder dataRecorder)
+        public void ApplyChanges(ulong         commitId,
+                                 IDataRecorder dataRecorder)
         {
-            dataRecorder.CommitRecord(commitId, Changes.ToList());
+            dataRecorder.CommitChanges(commitId, Changes.ToList());
 
             // reusing the list
             Changes.Clear();
@@ -155,26 +156,38 @@ namespace UniAgile.Game
                                               IDictionary<string, T> currentData,
                                               List<DataChange<T>>    changes)
         {
-            var currentValue = currentData[key];
-
-            if (!currentData.ContainsKey(key)
-                || !EqualityComparer<T>.Default.Equals(currentValue, value))
+            if (currentData.TryGetValue(key, out var currentValue))
+            {
+                if (!EqualityComparer<T>.Default.Equals(currentValue, value))
+                {
+                    currentData[key] = value;
+                    changes.Add(new DataChange<T>
+                    {
+                        New = value,
+                        Old = currentValue,
+                        Id  = key,
+                        ChangeType = ChangeType.Change
+                    });
+                }
+            }
+            else
             {
                 currentData[key] = value;
-
                 changes.Add(new DataChange<T>
                 {
                     New = value,
-                    Old = currentValue,
-                    Id  = key
+                    Old = default,
+                    Id  = key,
+                    ChangeType = ChangeType.Add
                 });
             }
+
+            
         }
 
         public void AddRange(IEnumerable<T>  enumerable,
                              Func<T, string> idSelector)
         {
-
             foreach (var e in enumerable) Add(idSelector(e), e);
         }
     }

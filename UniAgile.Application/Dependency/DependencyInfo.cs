@@ -17,8 +17,8 @@ namespace UniAgile.Dependency
                               bool                             isLazy = false)
         {
             IsLazy  = isLazy;
-            Type    = type;
-            Factory = factory;
+            Type    = type    ?? throw new NullReferenceException();
+            Factory = factory ?? throw new NullReferenceException();
         }
 
         public Func<IDependencyService, object> Factory { get; }

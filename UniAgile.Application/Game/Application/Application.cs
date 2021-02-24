@@ -2,30 +2,30 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UniAgile.Dependency;
+
 #pragma warning disable 1998
 
 namespace UniAgile.Game
 {
-    public abstract class Application
+    public class Application
     {
         internal Application()
         {
         }
 
-        private   IDependencyService DependencyServiceField;
-        // protected UpdateUISignal     UpdateUiSignal;
+        protected IDependencyService DependencyServiceField { get; private set; }
 
-        public static Application Instance          { get; private set; }
-        public static bool        ApplicationExists => Instance != null;
+        public static Application MainApplication   { get; private set; }
+        public static bool        ApplicationExists => MainApplication != null;
 
 
         public static IDependencyService DependencyService
         {
             get
             {
-                if (Instance == null) throw new Exception("Attempting to access applications dependency service before the application has been correctly initialized");
+                if (MainApplication == null) throw new Exception("Attempting to access applications dependency service before the application has been correctly initialized");
 
-                return Instance.DependencyServiceField;
+                return MainApplication.DependencyServiceField;
             }
         }
 
@@ -33,29 +33,35 @@ namespace UniAgile.Game
         {
             var dependencyList = GetDependencies();
             ApplicationModelDependencyInfo(dependencyList);
-            // UpdateUiSignal = new UpdateUISignal();
-            // dependencyList.Bind(ioc => UpdateUiSignal);
             DependencyServiceField = new DependencyService(dependencyList);
             OnInitialized();
         }
 
-        public abstract void Start();
-
-        public abstract void Reset();
-
-        protected void NotifyChanges()
+        public virtual void Start()
         {
         }
 
-        protected abstract void ApplicationModelDependencyInfo(List<IDependencyInfo> dependencyInfos);
+        public virtual void Reset()
+        {
+        }
 
-        // public IListenerHandle ListenForChanges<TContainingObject, T>(TContainingObject containingObject, Func<TContainingObject, T> getvalue, Action<>)
+        protected void CommitCurrentChanges()
+        {
+            DependencyServiceField.Resolve<ApplicationModel>().CommitCurrentChanges();
+        }
 
+        protected virtual void ApplicationModelDependencyInfo(List<IDependencyInfo> dependencyInfos)
+        {
+            dependencyInfos.Register<IDataRecorder, ApplicationModel>(ioc => new ApplicationModel());
+        }
+        
         public virtual async Task Loop(TimeSpan deltaTime)
         {
         }
 
-        protected abstract void OnInitialized();
+        protected virtual void OnInitialized()
+        {
+        }
 
         /// <summary>
         ///     Starts a new application and assigns it as the singleton instance
@@ -65,8 +71,8 @@ namespace UniAgile.Game
         public static TApplication Make<TApplication>()
             where TApplication : Application, new()
         {
-            var app = new TApplication();
-            Instance = app;
+            var app                                         = new TApplication();
+            if (MainApplication == default) MainApplication = app;
             app.OnInternalInitialized();
 
             return app;
@@ -81,7 +87,8 @@ namespace UniAgile.Game
             where TApplication : Application
         {
             var app = factory();
-            Instance = app;
+
+            if (MainApplication == default) MainApplication = app;
             app.OnInternalInitialized();
 
             return app;
@@ -94,8 +101,8 @@ namespace UniAgile.Game
         /// <returns></returns>
         public static Application Make(Func<Application> factory)
         {
-            var app = factory();
-            Instance = app;
+            var app                                         = factory();
+            if (MainApplication == default) MainApplication = app;
             app.OnInternalInitialized();
 
             return app;
@@ -108,13 +115,16 @@ namespace UniAgile.Game
         /// <returns></returns>
         public static Application Make(Type type)
         {
-            var app = Activator.CreateInstance(type);
-            Instance = (Application) app;
-            Instance.OnInternalInitialized();
+            var app                                         = Activator.CreateInstance(type);
+            if (MainApplication == default) MainApplication = (Application) app;
+            ((Application) app).OnInternalInitialized();
 
-            return Instance;
+            return MainApplication;
         }
 
-        protected abstract List<IDependencyInfo> GetDependencies();
+        protected virtual List<IDependencyInfo> GetDependencies()
+        {
+            return new List<IDependencyInfo>();
+        }
     }
 }

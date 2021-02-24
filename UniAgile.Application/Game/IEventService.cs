@@ -1,12 +1,13 @@
-﻿using UniAgile.Observable;
+﻿using System;
+using UniAgile.Observable;
 
 namespace UniAgile.Game
 {
     public interface IEventService
     {
-        ISignal<float> BeforeUpdateEvent { get; }
-
-        ISignal<float> UpdateEvent     { get; }
-        ISignal<float> PostUpdateEvent { get; }
+        ISignal<TimeSpan> UpdateUiEvent     { get; }
+        ISignal<TimeSpan> BeforeUpdateEvent { get; }
+        ISignal<TimeSpan> UpdateEvent       { get; }
+        ISignal<TimeSpan> PostUpdateEvent   { get; }
     }
 }
