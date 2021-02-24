@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\Roni - Personal\AppData\Local\JetBrains\Rider2020.3\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\Roni - Personal\AppData\Local\JetBrains\Rider2020.3\resharper-host\Local\Transient\Rider\v203\SolutionCaches\_.19.00" t="ExcludeRecursive" />
+    <e p="C:\Users\Roni - Personal\Storage\Repos\UniAgile.Application\UniAgile.Application" t="IncludeRecursive">
+      <e p="bin" t="ExcludeRecursive" />
+      <e p="obj" t="ExcludeRecursive">
+        <e p="Debug" t="Include">
+          <e p="netstandard2.0" t="Include">
+            <e p="UniAgile.Application.AssemblyInfo.cs" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Source" t="Include">
+        <e p="Dependency" t="Include">
+          <e p="DependencyInfo.cs" t="Include" />
+          <e p="DependencyService.cs" t="Include" />
+          <e p="IDependencyService.cs" t="Include" />
+        </e>
+        <e p="Game" t="Include">
+          <e p="Application" t="Include">
+            <e p="Application.cs" t="Include" />
+            <e p="ApplicationExtensions.cs" t="Include" />
+            <e p="ApplicationModel.cs" t="Include" />
+          </e>
+          <e p="AttemptResult.cs" t="Include" />
+          <e p="BindingExtensions.cs" t="Include" />
+          <e p="Extra" t="Include">
+            <e p="Feature.cs" t="Include" />
+          </e>
+          <e p="IEventService.cs" t="Include" />
+          <e p="Repository" t="Include">
+            <e p="DataChange.cs" t="Include" />
+            <e p="IDataRecorder.cs" t="Include" />
+            <e p="IRepository.cs" t="Include" />
+            <e p="Repository.cs" t="Include" />
+          </e>
+          <e p="RoutineCommand.cs" t="Include" />
+          <e p="Utility" t="Include">
+            <e p="IdentifierExtensions.cs" t="Include" />
+            <e p="ILogger.cs" t="Include" />
+            <e p="Option.cs" t="Include" />
+            <e p="Utility.cs" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="UniAgile.Application.csproj" t="IncludeRecursive" />
+    </e>
+  </component>
+</project>
