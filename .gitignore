@@ -31,7 +31,6 @@ Assets/AssetStoreTools*
 
 # Builds
 *.apk
-*.unitypackage
 *.obb
 
 # Jetbrain Rider Cache
