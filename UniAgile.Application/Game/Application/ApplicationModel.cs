@@ -4,66 +4,6 @@ using System.Linq;
 
 namespace UniAgile.Game
 {
-    public struct CurrencyModel
-    {
-        public string Type;
-        public int    Amount;
-
-        public bool HasSameType(CurrencyModel currencyModel)
-        {
-            return Type == currencyModel.Type;
-        }
-
-        public bool IsEnoughFor(CurrencyModel cost)
-        {
-            if (!HasSameType(cost)) return false;
-
-            return Amount >= cost.Amount;
-        }
-
-        private CurrencyModel Modify(int amount)
-        {
-            return new CurrencyModel
-            {
-                Type   = Type,
-                Amount = Amount + amount
-            };
-        }
-
-        public bool TrySpend(CurrencyModel     cost,
-                             out CurrencyModel result)
-        {
-            if (!IsEnoughFor(cost))
-            {
-                result = this;
-
-                return false;
-            }
-
-            result = Modify(-cost.Amount);
-
-            return true;
-        }
-    }
-
-    public static class CurrencyExtensions
-    {
-        // public interface 
-        public enum CurrencyType
-        {
-            Soft,
-            Hard
-        }
-
-
-        public static IEnumerable<KeyValuePair<string, CurrencyModel>> GetCurrenciesOfType(this IDictionary<string, CurrencyModel> repository,
-                                                                                           CurrencyType                            currencyType)
-        {
-            return repository.Where(kvp => kvp.Value.Type == currencyType.ToString());
-        }
-    }
-
-
     public class ApplicationModel
     {
         protected IReadOnlyList<IRepository> Repositories { get; set; } = new IRepository[0];

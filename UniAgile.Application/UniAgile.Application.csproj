@@ -15,8 +15,4 @@
       <Optimize>true</Optimize>
     </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="UniAgile.Observable" Version="1.1.0" />
-    </ItemGroup>
-
 </Project>
