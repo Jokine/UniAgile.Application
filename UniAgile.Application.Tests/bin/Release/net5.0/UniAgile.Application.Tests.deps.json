@@ -1135,7 +1135,7 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "UniAgile.Observable/1.0.0": {
+      "UniAgile.Observable/1.1.0": {
         "runtime": {
           "lib/netstandard2.0/UniAgile.Observable.dll": {
             "assemblyVersion": "1.0.0.0",
@@ -1215,7 +1215,7 @@
       "xunit.runner.visualstudio/2.4.3": {},
       "UniAgile.Application/1.0.0": {
         "dependencies": {
-          "UniAgile.Observable": "1.0.0"
+          "UniAgile.Observable": "1.1.0"
         },
         "runtime": {
           "UniAgile.Application.dll": {}
@@ -1873,12 +1873,12 @@
       "path": "system.xml.xmldocument/4.3.0",
       "hashPath": "system.xml.xmldocument.4.3.0.nupkg.sha512"
     },
-    "UniAgile.Observable/1.0.0": {
+    "UniAgile.Observable/1.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-dZ+5vM9nAPGcC7I41DblukqDhFpiiDyAGorUqbLA0uej4CO0rc8cWtwcASpwU4tnD2K2k1Q/AKFmjN0Mcp1WQQ==",
-      "path": "uniagile.observable/1.0.0",
-      "hashPath": "uniagile.observable.1.0.0.nupkg.sha512"
+      "sha512": "sha512-Q8IiOO3JROA1jTCfDTd+owjRW3ug7/ZnmscEuEbHw+kaQZk+tF6TkQBJc/pkzvNqWDJRcoWYO5oI9DlRnFFWuw==",
+      "path": "uniagile.observable/1.1.0",
+      "hashPath": "uniagile.observable.1.1.0.nupkg.sha512"
     },
     "UniAgile.Testing/1.2.6": {
       "type": "package",

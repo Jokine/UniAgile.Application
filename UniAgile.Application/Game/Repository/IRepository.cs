@@ -6,8 +6,7 @@ namespace UniAgile.Game
     {
         Type RepositoryType { get; }
 
-        void ApplyChanges(ulong         commitId,
-                          IDataRecorder recorder);
+        void NotifyChanges();
 
         void Clear();
     }

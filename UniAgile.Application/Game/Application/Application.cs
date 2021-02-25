@@ -14,6 +14,7 @@ namespace UniAgile.Game
         }
 
         protected IDependencyService DependencyServiceField { get; private set; }
+        public    ApplicationModel   ApplicationModel       { get; private set; }
 
         public static Application MainApplication   { get; private set; }
         public static bool        ApplicationExists => MainApplication != null;
@@ -34,6 +35,7 @@ namespace UniAgile.Game
             var dependencyList = GetDependencies();
             ApplicationModelDependencyInfo(dependencyList);
             DependencyServiceField = new DependencyService(dependencyList);
+            ApplicationModel       = DependencyServiceField.Resolve<ApplicationModel>();
             OnInitialized();
         }
 
@@ -45,16 +47,11 @@ namespace UniAgile.Game
         {
         }
 
-        protected void CommitCurrentChanges()
-        {
-            DependencyServiceField.Resolve<ApplicationModel>().CommitCurrentChanges();
-        }
-
         protected virtual void ApplicationModelDependencyInfo(List<IDependencyInfo> dependencyInfos)
         {
-            dependencyInfos.Register<IDataRecorder, ApplicationModel>(ioc => new ApplicationModel());
+            dependencyInfos.Register(ioc => new ApplicationModel());
         }
-        
+
         public virtual async Task Loop(TimeSpan deltaTime)
         {
         }

@@ -1,17 +1,24 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace UniAgile.Game
 {
-    public class Repository<T> : IDictionary<string, T>, IReadOnlyDictionary<string, T>, IRepository
+    public class Repository<T> : IDictionary<string, T>, INotifyCollectionChanged, IReadOnlyDictionary<string, T>, IRepository
         where T : struct
     {
+        private static readonly NotifyCollectionChangedEventArgs AddEvent     = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add);
+        private static readonly NotifyCollectionChangedEventArgs RemoveEvent  = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove);
+        private static readonly NotifyCollectionChangedEventArgs ReplaceEvent = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace);
+
         public Repository()
         {
             Changes = new List<DataChange<T>>();
         }
+
+        private readonly IDictionary<string, bool> AlreadyNotified = new Dictionary<string, bool>();
 
         private readonly List<DataChange<T>> Changes;
 
@@ -135,20 +142,40 @@ namespace UniAgile.Game
         public ICollection<string> Keys   => CurrentData.Keys;
         public ICollection<T>      Values => CurrentData.Values;
 
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
         IEnumerable<string> IReadOnlyDictionary<string, T>.Keys => Keys;
 
         IEnumerable<T> IReadOnlyDictionary<string, T>.Values => Values;
 
-
         public Type RepositoryType => typeof(T);
 
-        public void ApplyChanges(ulong         commitId,
-                                 IDataRecorder dataRecorder)
+        public void NotifyChanges()
         {
-            dataRecorder.CommitChanges(commitId, Changes.ToList());
+            for (var i = Changes.Count - 1; i >= 0; i--)
+            {
+                var change = Changes[i];
+
+                if (AlreadyNotified.ContainsKey(change.Id)) continue;
+
+                AlreadyNotified.Add(change.Id, true);
+                CollectionChanged?.Invoke(change, ChooseArgs(change.ChangeType));
+            }
 
             // reusing the list
+            AlreadyNotified.Clear();
             Changes.Clear();
+        }
+
+        private static NotifyCollectionChangedEventArgs ChooseArgs(ChangeType changeType)
+        {
+            switch (changeType)
+            {
+                case ChangeType.Change: return ReplaceEvent;
+                case ChangeType.Add:    return AddEvent;
+                case ChangeType.Remove: return RemoveEvent;
+                default:                throw new ArgumentOutOfRangeException(nameof(changeType), changeType, null);
+            }
         }
 
         private static void HandleDataChanges(string                 key,
@@ -161,11 +188,12 @@ namespace UniAgile.Game
                 if (!EqualityComparer<T>.Default.Equals(currentValue, value))
                 {
                     currentData[key] = value;
+
                     changes.Add(new DataChange<T>
                     {
-                        New = value,
-                        Old = currentValue,
-                        Id  = key,
+                        New        = value,
+                        Old        = currentValue,
+                        Id         = key,
                         ChangeType = ChangeType.Change
                     });
                 }
@@ -173,16 +201,15 @@ namespace UniAgile.Game
             else
             {
                 currentData[key] = value;
+
                 changes.Add(new DataChange<T>
                 {
-                    New = value,
-                    Old = default,
-                    Id  = key,
+                    New        = value,
+                    Old        = default,
+                    Id         = key,
                     ChangeType = ChangeType.Add
                 });
             }
-
-            
         }
 
         public void AddRange(IEnumerable<T>  enumerable,

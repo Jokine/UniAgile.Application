@@ -1,84 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using UniAgile.Observable;
 
 namespace UniAgile.Game
 {
-    public class ApplicationModel : IDataRecorder
+    public struct CurrencyModel
     {
-        private readonly IDictionary<string, bool>              NotifiedThisFrame = new Dictionary<string, bool>();
-        private readonly IDictionary<string, IListenableSignal> Signals           = new Dictionary<string, IListenableSignal>();
-        protected        ulong                                  CurrentDataCommitId { get; private set; }
-        protected        IReadOnlyList<IRepository>             Repositories        { get; set; } = new IRepository[0];
+        public string Type;
+        public int    Amount;
+    }
 
-
-        public void CommitChanges<T>(ulong                        commitId,
-                                     IReadOnlyList<DataChange<T>> dataChanges)
-            where T : struct
+    public static class CurrencyExtensions
+    {
+        // public interface 
+        public enum CurrencyType
         {
-            // todo: save the data changes for rollbacking
-            // remember memory limits, serialization and delta rollbacking
-
-            // all changes are in order, last change will always mean that is the current state
-            for (var i = dataChanges.Count - 1; i >= 0; i--)
-            {
-                var change = dataChanges[i];
-
-                if (NotifiedThisFrame.ContainsKey(change.Id)) continue;
-
-                var signal = GetCastSignal<DataChange<T>>(Signals, change.Id);
-
-                signal.Invoke(change);
-                NotifiedThisFrame.Add(change.Id, true);
-            }
+            Soft,
+            Hard
         }
 
-        public IListenerHandle BindToDataChange<T>(string    id,
-                                                   Action<DataChange<T>> listener)
-            where T : struct
+        public static IEnumerable<KeyValuePair<string, CurrencyModel>> GetCurrenciesOfType(this IDictionary<string, CurrencyModel> repository,
+                                                                                           CurrencyType                            currencyType)
         {
-            id = FormId(typeof(T), id);
-
-            var signal = GetCastSignal<DataChange<T>>(Signals, id);
-
-            return new ListenerHandle<DataChange<T>>(signal, listener);
+            return repository.Where(kvp => kvp.Value.Type == currencyType.ToString());
         }
+    }
 
-        public IListenerHandle BindToDataChange<T>(string                          id,
-                                                   Action<KeyValuePair<string, DataChange<T>>> listener)
-            where T : struct
+
+    public class ApplicationModel
+    {
+        protected IReadOnlyList<IRepository> Repositories { get; set; } = new IRepository[0];
+
+        public void NotifyRepositoryChanges()
         {
-            id = FormId(typeof(T), id);
-
-            var signal = GetCastSignal<DataChange<T>>(Signals, id);
-
-            return new KvpListenerHandle<DataChange<T>>(signal, id, listener);
-        }
-
-        public void CommitCurrentChanges()
-        {
-            for (var i = 0; i < Repositories.Count; ++i) Repositories[i].ApplyChanges(CurrentDataCommitId, this);
-            CurrentDataCommitId++;
-            NotifiedThisFrame.Clear();
-        }
-
-        private static Signal<T> GetCastSignal<T>(IDictionary<string, IListenableSignal> signals,
-                                                  string                                 id)
-        {
-            Signal<T> castSignal;
-
-            if (!signals.TryGetValue(id, out var uncastSignal))
-            {
-                castSignal = new Signal<T>();
-                signals.Add(id, castSignal);
-            }
-            else
-            {
-                castSignal = (Signal<T>) uncastSignal;
-            }
-
-            return castSignal;
+            for (var i = 0; i < Repositories.Count; ++i) Repositories[i].NotifyChanges();
         }
 
         public void Clear()
@@ -86,7 +43,7 @@ namespace UniAgile.Game
             if (Repositories == null) return;
 
             foreach (var rep in Repositories) rep.Clear();
-            CommitCurrentChanges();
+            NotifyRepositoryChanges();
         }
 
         public KeyValuePair<string, T> GetModel<T>(string key)
