@@ -1,0 +1,1 @@
+git subtree push --prefix "UniAgile.Application\bin\Unity\UniAgile.Application.UnityPackage\Assets" origin upm

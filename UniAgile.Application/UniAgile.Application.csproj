@@ -10,12 +10,10 @@
         <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
 
+    
     <PropertyGroup Condition=" '$(Configuration)' == 'Unity' ">
       <OutputPath>bin\Unity\UniAgile.Application.UnityPackage\Assets\</OutputPath>
-
         <Optimize>true</Optimize>
-        <Command>git subtree push --prefix "$(ProjectDir)\UniAgile.Application\bin\Unity\UniAgile.Application.UnityPackage\Assets" origin upm</Command>
-
     </PropertyGroup>
     
 
