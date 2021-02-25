@@ -6,6 +6,13 @@
         <PackageProjectUrl>https://github.com/Jokine/UniAgile.Application</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Jokine/UniAgile.Application</RepositoryUrl>
         <PackageReleaseNotes>Application</PackageReleaseNotes>
+        <Configurations>Debug;Release;Unity</Configurations>
+        <Platforms>AnyCPU</Platforms>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Unity' ">
+      <OutputPath>bin\Unity\UniAgile.Application.UnityPackage\Assets\</OutputPath>
+      <Optimize>true</Optimize>
     </PropertyGroup>
 
     <ItemGroup>
