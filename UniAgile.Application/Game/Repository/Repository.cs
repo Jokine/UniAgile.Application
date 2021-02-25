@@ -127,9 +127,11 @@ namespace UniAgile.Game
                 {
                     return CurrentData[key];
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    throw new Exception($"Unable to find model {typeof(T)} with key {key}. Original message: {e.Message}");
+                    Add(key, default);
+
+                    return default;
                 }
             }
             set =>
@@ -152,6 +154,7 @@ namespace UniAgile.Game
 
         public void NotifyChanges()
         {
+            // reversing so the most recent change is found first and multiple change notifications to same value can be skipped
             for (var i = Changes.Count - 1; i >= 0; i--)
             {
                 var change = Changes[i];
@@ -159,7 +162,7 @@ namespace UniAgile.Game
                 if (AlreadyNotified.ContainsKey(change.Id)) continue;
 
                 AlreadyNotified.Add(change.Id, true);
-                CollectionChanged?.Invoke(change, ChooseArgs(change.ChangeType));
+                CollectionChanged?.Invoke(change.New, ChooseArgs(change.ChangeType));
             }
 
             // reusing the list

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using UniAgile.Observable;
 
 namespace UniAgile.Game
 {
@@ -10,6 +8,42 @@ namespace UniAgile.Game
     {
         public string Type;
         public int    Amount;
+
+        public bool HasSameType(CurrencyModel currencyModel)
+        {
+            return Type == currencyModel.Type;
+        }
+
+        public bool IsEnoughFor(CurrencyModel cost)
+        {
+            if (!HasSameType(cost)) return false;
+
+            return Amount >= cost.Amount;
+        }
+
+        private CurrencyModel Modify(int amount)
+        {
+            return new CurrencyModel
+            {
+                Type   = Type,
+                Amount = Amount + amount
+            };
+        }
+
+        public bool TrySpend(CurrencyModel     cost,
+                             out CurrencyModel result)
+        {
+            if (!IsEnoughFor(cost))
+            {
+                result = this;
+
+                return false;
+            }
+
+            result = Modify(-cost.Amount);
+
+            return true;
+        }
     }
 
     public static class CurrencyExtensions
@@ -20,6 +54,7 @@ namespace UniAgile.Game
             Soft,
             Hard
         }
+
 
         public static IEnumerable<KeyValuePair<string, CurrencyModel>> GetCurrenciesOfType(this IDictionary<string, CurrencyModel> repository,
                                                                                            CurrencyType                            currencyType)
