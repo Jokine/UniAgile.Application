@@ -2,6 +2,10 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <Title>UniAgile.Application</Title>
+        <PackageProjectUrl>https://github.com/Jokine/UniAgile.Application</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Jokine/UniAgile.Application</RepositoryUrl>
+        <PackageReleaseNotes>Application</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
