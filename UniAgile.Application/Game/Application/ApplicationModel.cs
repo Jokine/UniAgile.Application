@@ -68,7 +68,14 @@ namespace UniAgile.Game
         public IDictionary<string, T> GetRepository<T>()
             where T : struct
         {
-            return (Repository<T>) Repositories.OptimisticGet(typeof(T));
+            if (!Repositories.TryGetValue(typeof(T), out var repository))
+            {
+                repository = new Repository<T>();
+                Repositories.Add(typeof(T), repository);
+                
+            }
+            
+            return (Repository<T>) repository;
         }
 
         public void NotifyChanges()

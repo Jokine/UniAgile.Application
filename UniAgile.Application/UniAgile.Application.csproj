@@ -5,10 +5,10 @@
         <Title>UniAgile.Application</Title>
         <PackageProjectUrl>https://github.com/Jokine/UniAgile.Application</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Jokine/UniAgile.Application</RepositoryUrl>
-        <PackageReleaseNotes>Simplified application and application model. Now supports INotifyCollectionChanged</PackageReleaseNotes>
+        <PackageReleaseNotes>Dynamic repositories</PackageReleaseNotes>
         <Configurations>Debug;Release;Unity</Configurations>
         <Platforms>AnyCPU</Platforms>
-        <PackageVersion>1.1.1</PackageVersion>
+        <PackageVersion>1.1.2</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
