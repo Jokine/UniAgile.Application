@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using UniAgile.Dependency;
-using UniAgile.Testing;
-using Xunit;
-
-namespace UniAgile.Application.Tests.ApplicationTests
+﻿namespace UniAgile.Application.Tests.ApplicationTests
 {
     public class Unit
     {

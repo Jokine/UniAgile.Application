@@ -7,6 +7,18 @@ namespace UniAgile.Game
 {
     public static class Utility
     {
+        public static Notifiable GetOrCreateNotifiable(this IDictionary<string, Notifiable> notifiables,
+                                                       string                               key)
+        {
+            if (!notifiables.TryGetValue(key, out var notifiable))
+            {
+                notifiable = new Notifiable();
+                notifiables.Add(key, notifiable);
+            }
+
+            return notifiable;
+        }
+
         public static T OptimisticGet<T>(this IDictionary<Type, object> values,
                                          T                              defaultValue = default)
         {

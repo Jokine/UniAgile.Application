@@ -8,6 +8,8 @@
         <PackageReleaseNotes>Application</PackageReleaseNotes>
         <Configurations>Debug;Release;Unity</Configurations>
         <Platforms>AnyCPU</Platforms>
+        <PackageVersion>1.0.2</PackageVersion>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     

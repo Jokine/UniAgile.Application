@@ -1,28 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 
 namespace UniAgile.Game
 {
-    public class Repository<T> : IDictionary<string, T>, INotifyCollectionChanged, IReadOnlyDictionary<string, T>, IRepository
+    public class Repository<T> : IDictionary<string, T>,
+                                 IReadOnlyDictionary<string, T>,
+                                 IRepository
+                                 
         where T : struct
     {
-        private static readonly NotifyCollectionChangedEventArgs AddEvent     = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add);
-        private static readonly NotifyCollectionChangedEventArgs RemoveEvent  = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove);
-        private static readonly NotifyCollectionChangedEventArgs ReplaceEvent = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace);
+        private readonly IDictionary<string, T>      CurrentData = new Dictionary<string, T>();
+        private readonly List<DataChange<T>>         DataChanges = new List<DataChange<T>>();
+        private          IDictionary<string, string> ChangeCache = new Dictionary<string, string>();
 
-        public Repository()
-        {
-            Changes = new List<DataChange<T>>();
-        }
-
-        private readonly IDictionary<string, bool> AlreadyNotified = new Dictionary<string, bool>();
-
-        private readonly List<DataChange<T>> Changes;
-
-        private readonly IDictionary<string, T> CurrentData = new Dictionary<string, T>();
 
         public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
         {
@@ -48,7 +40,7 @@ namespace UniAgile.Game
                 ChangeType = ChangeType.Remove
             });
 
-            Changes.AddRange(changes);
+            DataChanges.AddRange(changes);
 
             CurrentData.Clear();
         }
@@ -80,13 +72,15 @@ namespace UniAgile.Game
 
             CurrentData[key] = value;
 
-            Changes.Add(new DataChange<T>
+            var dataChange = new DataChange<T>
             {
                 Id         = key,
                 New        = value,
                 Old        = default,
                 ChangeType = ChangeType.Add
-            });
+            };
+
+            DataChanges.Add(dataChange);
         }
 
         public bool ContainsKey(string key)
@@ -102,7 +96,7 @@ namespace UniAgile.Game
 
             CurrentData.Remove(key);
 
-            Changes.Add(new DataChange<T>
+            DataChanges.Add(new DataChange<T>
             {
                 Id         = key,
                 Old        = currentValue,
@@ -138,13 +132,31 @@ namespace UniAgile.Game
                 HandleDataChanges(key,
                                   value,
                                   CurrentData,
-                                  Changes);
+                                  DataChanges);
         }
 
         public ICollection<string> Keys   => CurrentData.Keys;
         public ICollection<T>      Values => CurrentData.Values;
 
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public void PopDataChangesNonAlloc(IDictionary<string, Notifiable> notifiables, List<INotifiableDataChange> list)
+        {
+            for (int i = DataChanges.Count - 1; i >= 0; i--)
+            {
+                var dc = DataChanges[i];
+                if(ChangeCache.ContainsKey(dc.Id)) continue;
+                
+                var notifiableDataChange = new NotifiableDataChange<T>(
+                                                                       notifiables.GetOrCreateNotifiable(dc.Id),
+                                                                       dc);
+
+                ChangeCache.Add(dc.Id, dc.Id);
+                list.Add(notifiableDataChange);
+            }
+
+            // reusing the list
+            ChangeCache.Clear();
+            DataChanges.Clear();
+        }
 
         IEnumerable<string> IReadOnlyDictionary<string, T>.Keys => Keys;
 
@@ -152,34 +164,6 @@ namespace UniAgile.Game
 
         public Type RepositoryType => typeof(T);
 
-        public void NotifyChanges()
-        {
-            // reversing so the most recent change is found first and multiple change notifications to same value can be skipped
-            for (var i = Changes.Count - 1; i >= 0; i--)
-            {
-                var change = Changes[i];
-
-                if (AlreadyNotified.ContainsKey(change.Id)) continue;
-
-                AlreadyNotified.Add(change.Id, true);
-                CollectionChanged?.Invoke(change.New, ChooseArgs(change.ChangeType));
-            }
-
-            // reusing the list
-            AlreadyNotified.Clear();
-            Changes.Clear();
-        }
-
-        private static NotifyCollectionChangedEventArgs ChooseArgs(ChangeType changeType)
-        {
-            switch (changeType)
-            {
-                case ChangeType.Change: return ReplaceEvent;
-                case ChangeType.Add:    return AddEvent;
-                case ChangeType.Remove: return RemoveEvent;
-                default:                throw new ArgumentOutOfRangeException(nameof(changeType), changeType, null);
-            }
-        }
 
         private static void HandleDataChanges(string                 key,
                                               T                      value,

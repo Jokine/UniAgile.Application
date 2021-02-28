@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace UniAgile.Game
 {
@@ -6,8 +7,8 @@ namespace UniAgile.Game
     {
         Type RepositoryType { get; }
 
-        void NotifyChanges();
-
         void Clear();
+        
+        void PopDataChangesNonAlloc(IDictionary<string, Notifiable> notifiables, List<INotifiableDataChange> list);
     }
 }
