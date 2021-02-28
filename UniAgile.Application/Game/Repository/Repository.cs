@@ -8,12 +8,11 @@ namespace UniAgile.Game
     public class Repository<T> : IDictionary<string, T>,
                                  IReadOnlyDictionary<string, T>,
                                  IRepository
-                                 
         where T : struct
     {
+        private readonly IDictionary<string, string> ChangeCache = new Dictionary<string, string>();
         private readonly IDictionary<string, T>      CurrentData = new Dictionary<string, T>();
         private readonly List<DataChange<T>>         DataChanges = new List<DataChange<T>>();
-        private          IDictionary<string, string> ChangeCache = new Dictionary<string, string>();
 
 
         public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
@@ -138,13 +137,19 @@ namespace UniAgile.Game
         public ICollection<string> Keys   => CurrentData.Keys;
         public ICollection<T>      Values => CurrentData.Values;
 
-        public void PopDataChangesNonAlloc(IDictionary<string, Notifiable> notifiables, List<INotifiableDataChange> list)
+        IEnumerable<string> IReadOnlyDictionary<string, T>.Keys => Keys;
+
+        IEnumerable<T> IReadOnlyDictionary<string, T>.Values => Values;
+
+        public void PopDataChangesNonAlloc(IDictionary<string, Notifiable> notifiables,
+                                           List<INotifiableDataChange>     list)
         {
-            for (int i = DataChanges.Count - 1; i >= 0; i--)
+            for (var i = DataChanges.Count - 1; i >= 0; i--)
             {
                 var dc = DataChanges[i];
-                if(ChangeCache.ContainsKey(dc.Id)) continue;
-                
+
+                if (ChangeCache.ContainsKey(dc.Id)) continue;
+
                 var notifiableDataChange = new NotifiableDataChange<T>(
                                                                        notifiables.GetOrCreateNotifiable(dc.Id),
                                                                        dc);
@@ -157,10 +162,6 @@ namespace UniAgile.Game
             ChangeCache.Clear();
             DataChanges.Clear();
         }
-
-        IEnumerable<string> IReadOnlyDictionary<string, T>.Keys => Keys;
-
-        IEnumerable<T> IReadOnlyDictionary<string, T>.Values => Values;
 
         public Type RepositoryType => typeof(T);
 

@@ -5,34 +5,24 @@ namespace UniAgile.Game
 {
     public interface INotifiableDataChange : IDisposable
     {
-
         void Notify();
     }
 
     public class Notifiable : INotifyCollectionChanged
 
     {
-        private static readonly NotifyCollectionChangedEventArgs AddEvent     = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add);
-        private static readonly NotifyCollectionChangedEventArgs RemoveEvent  = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove);
-        private static readonly NotifyCollectionChangedEventArgs ReplaceEvent = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace);
+        private static readonly NotifyCollectionChangedEventArgs DummyArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public void Invoke(object     param,
-                           ChangeType changeType)
+        public void Invoke(object param)
         {
-            CollectionChanged?.Invoke(param, ChooseArgs(changeType));
+            CollectionChanged?.Invoke(param, DummyArgs);
         }
 
-        private static NotifyCollectionChangedEventArgs ChooseArgs(ChangeType changeType)
+        public void RemoveAllListeners()
         {
-            switch (changeType)
-            {
-                case ChangeType.Change: return ReplaceEvent;
-                case ChangeType.Add:    return AddEvent;
-                case ChangeType.Remove: return RemoveEvent;
-                default:                throw new ArgumentOutOfRangeException(nameof(changeType), changeType, null);
-            }
+            CollectionChanged = null;
         }
     }
 
@@ -66,7 +56,7 @@ namespace UniAgile.Game
 
         public void Notify()
         {
-            Notifiable.Invoke(this, DataChange.ChangeType);
+            Notifiable.Invoke(this);
         }
     }
 }

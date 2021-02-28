@@ -8,7 +8,8 @@ namespace UniAgile.Game
         Type RepositoryType { get; }
 
         void Clear();
-        
-        void PopDataChangesNonAlloc(IDictionary<string, Notifiable> notifiables, List<INotifiableDataChange> list);
+
+        void PopDataChangesNonAlloc(IDictionary<string, Notifiable> notifiables,
+                                    List<INotifiableDataChange>     list);
     }
 }

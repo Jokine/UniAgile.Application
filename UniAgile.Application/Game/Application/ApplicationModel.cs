@@ -8,16 +8,23 @@ namespace UniAgile.Game
 {
     public class ApplicationModel : IReadOnlyDictionary<string, INotifyCollectionChanged>
     {
+        public ApplicationModel(IReadOnlyList<IRepository> repositories)
+        {
+            Repositories = new Dictionary<Type, IRepository>(repositories.Count);
+
+            foreach (var repository in repositories) Repositories.Add(repository.RepositoryType, repository);
+        }
+
+        private readonly List<INotifiableDataChange>     NotifiableDataChangesCachedList = new List<INotifiableDataChange>();
         private readonly IDictionary<string, Notifiable> Notifiables                     = new Dictionary<string, Notifiable>();
-        private          List<INotifiableDataChange>     NotifiableDataChangesCachedList = new List<INotifiableDataChange>();
-        
-        protected        IReadOnlyList<IRepository>      Repositories { get; set; } = new IRepository[0];
+
+        private readonly IDictionary<Type, IRepository> Repositories;
 
         public INotifyCollectionChanged this[string key]
         {
             get
             {
-                var result = TryGetValue(key, out var notifiable);
+                TryGetValue(key, out var notifiable);
 
                 return notifiable;
             }
@@ -58,69 +65,21 @@ namespace UniAgile.Game
         public IEnumerable<string>                   Keys   => Notifiables.Keys;
         public IEnumerable<INotifyCollectionChanged> Values => Notifiables.Select(kvp => (INotifyCollectionChanged) kvp.Value);
 
-        public void Clear()
-        {
-            if (Repositories == null) return;
-
-            foreach (var rep in Repositories) rep.Clear();
-            NotifyChanges();
-        }
-
-
-        public KeyValuePair<string, T> GetModel<T>(string key)
+        public IDictionary<string, T> GetRepository<T>()
             where T : struct
         {
-            try
-            {
-                return new KeyValuePair<string, T>(key, GetRepository<T>()[key]);
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Unable to get model {key} due to an error. Original message: {e.Message}");
-            }
-        }
-
-        public KeyValuePair<string, T> GetModelOrDefault<T>(string key)
-            where T : struct
-        {
-            try
-            {
-                return new KeyValuePair<string, T>(key, GetRepository<T>()[key]);
-            }
-            catch (Exception)
-            {
-                return default;
-            }
-        }
-
-        // todo: composite keys should later on to be cached and made into indices
-        private string FormId(Type   type,
-                              string baseId)
-        {
-            return $"{type}.{baseId}";
-        }
-
-
-        private IDictionary<string, T> GetRepository<T>()
-            where T : struct
-        {
-            return (Repository<T>) Repositories.First(r => r.RepositoryType == typeof(T));
+            return (Repository<T>) Repositories.OptimisticGet(typeof(T));
         }
 
         public void NotifyChanges()
         {
-            for (int i = 0; i < Repositories.Count; i++)
-            {
-                Repositories[i].PopDataChangesNonAlloc(Notifiables, NotifiableDataChangesCachedList);
-            }
+            foreach (var repoKvp in Repositories) repoKvp.Value.PopDataChangesNonAlloc(Notifiables, NotifiableDataChangesCachedList);
 
-            for (int i = 0; i < NotifiableDataChangesCachedList.Count; i++)
-            {
-                using (var notifiableDataChange = NotifiableDataChangesCachedList[i]) 
+            for (var i = 0; i < NotifiableDataChangesCachedList.Count; i++)
+                using (var notifiableDataChange = NotifiableDataChangesCachedList[i])
                 {
                     notifiableDataChange.Notify();
                 }
-            }
 
             // can be possibly optimized with reverse for loop and removal while iterating
             NotifiableDataChangesCachedList.Clear();
