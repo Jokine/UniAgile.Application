@@ -10,9 +10,14 @@ namespace UniAgile.Game
                                  IRepository
         where T : struct
     {
-        private readonly IDictionary<string, string> ChangeCache = new Dictionary<string, string>();
-        private readonly IDictionary<string, T>      CurrentData = new Dictionary<string, T>();
-        private readonly List<DataChange<T>>         DataChanges = new List<DataChange<T>>();
+        private readonly IDictionary<string, string> ChangeCache =
+            new Dictionary<string, string>();
+
+        private readonly IDictionary<string, T> CurrentData =
+            new Dictionary<string, T>();
+
+        private readonly List<DataChange<T>> DataChanges =
+            new List<DataChange<T>>();
 
 
         public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
@@ -34,8 +39,8 @@ namespace UniAgile.Game
         {
             var changes = CurrentData.Select(kvp => new DataChange<T>
             {
-                Id         = kvp.Key,
-                Old        = kvp.Value,
+                Id = kvp.Key,
+                Old = kvp.Value,
                 ChangeType = ChangeType.Remove
             });
 
@@ -50,7 +55,7 @@ namespace UniAgile.Game
         }
 
         public void CopyTo(KeyValuePair<string, T>[] array,
-                           int                       arrayIndex)
+                           int arrayIndex)
         {
             CurrentData.CopyTo(array, arrayIndex);
         }
@@ -60,22 +65,23 @@ namespace UniAgile.Game
             return CurrentData.Remove(item);
         }
 
-        public int  Count      => CurrentData.Count;
+        public int Count => CurrentData.Count;
         public bool IsReadOnly => CurrentData.IsReadOnly;
 
         public void Add(string key,
-                        T      value)
+                        T value)
         {
-            if (CurrentData.ContainsKey(key)) throw new Exception($"{typeof(T)} already has key {key}");
+            if (CurrentData.ContainsKey(key))
+                throw new Exception($"{typeof(T)} already has key {key}");
 
 
             CurrentData[key] = value;
 
             var dataChange = new DataChange<T>
             {
-                Id         = key,
-                New        = value,
-                Old        = default,
+                Id = key,
+                New = value,
+                Old = default,
                 ChangeType = ChangeType.Add
             };
 
@@ -97,9 +103,9 @@ namespace UniAgile.Game
 
             DataChanges.Add(new DataChange<T>
             {
-                Id         = key,
-                Old        = currentValue,
-                New        = default,
+                Id = key,
+                Old = currentValue,
+                New = default,
                 ChangeType = ChangeType.Remove
             });
 
@@ -107,7 +113,7 @@ namespace UniAgile.Game
         }
 
         public bool TryGetValue(string key,
-                                out T  value)
+                                out T value)
         {
             return CurrentData.TryGetValue(key, out value);
         }
@@ -134,15 +140,16 @@ namespace UniAgile.Game
                                   DataChanges);
         }
 
-        public ICollection<string> Keys   => CurrentData.Keys;
-        public ICollection<T>      Values => CurrentData.Values;
+        public ICollection<string> Keys => CurrentData.Keys;
+        public ICollection<T> Values => CurrentData.Values;
 
         IEnumerable<string> IReadOnlyDictionary<string, T>.Keys => Keys;
 
         IEnumerable<T> IReadOnlyDictionary<string, T>.Values => Values;
 
-        public void PopDataChangesNonAlloc(IDictionary<string, Notifiable> notifiables,
-                                           List<INotifiableDataChange>     list)
+        public void PopDataChangesNonAlloc(
+            IDictionary<string, Notifiable> notifiables,
+            List<INotifiableDataChange> list)
         {
             for (var i = DataChanges.Count - 1; i >= 0; i--)
             {
@@ -151,8 +158,8 @@ namespace UniAgile.Game
                 if (ChangeCache.ContainsKey(dc.Id)) continue;
 
                 var notifiableDataChange = new NotifiableDataChange<T>(
-                                                                       notifiables.GetOrCreateNotifiable(dc.Id),
-                                                                       dc);
+                 notifiables.GetOrCreateNotifiable(dc.Id),
+                 dc);
 
                 ChangeCache.Add(dc.Id, dc.Id);
                 list.Add(notifiableDataChange);
@@ -166,10 +173,11 @@ namespace UniAgile.Game
         public Type RepositoryType => typeof(T);
 
 
-        private static void HandleDataChanges(string                 key,
-                                              T                      value,
-                                              IDictionary<string, T> currentData,
-                                              List<DataChange<T>>    changes)
+        private static void HandleDataChanges(string key,
+                                              T value,
+                                              IDictionary<string, T>
+                                                  currentData,
+                                              List<DataChange<T>> changes)
         {
             if (currentData.TryGetValue(key, out var currentValue))
             {
@@ -179,9 +187,9 @@ namespace UniAgile.Game
 
                     changes.Add(new DataChange<T>
                     {
-                        New        = value,
-                        Old        = currentValue,
-                        Id         = key,
+                        New = value,
+                        Old = currentValue,
+                        Id = key,
                         ChangeType = ChangeType.Change
                     });
                 }
@@ -192,15 +200,15 @@ namespace UniAgile.Game
 
                 changes.Add(new DataChange<T>
                 {
-                    New        = value,
-                    Old        = default,
-                    Id         = key,
+                    New = value,
+                    Old = default,
+                    Id = key,
                     ChangeType = ChangeType.Add
                 });
             }
         }
 
-        public void AddRange(IEnumerable<T>  enumerable,
+        public void AddRange(IEnumerable<T> enumerable,
                              Func<T, string> idSelector)
         {
             foreach (var e in enumerable) Add(idSelector(e), e);

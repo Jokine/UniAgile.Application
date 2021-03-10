@@ -10,6 +10,6 @@ namespace UniAgile.Game
         void Clear();
 
         void PopDataChangesNonAlloc(IDictionary<string, Notifiable> notifiables,
-                                    List<INotifiableDataChange>     list);
+                                    List<INotifiableDataChange> list);
     }
 }

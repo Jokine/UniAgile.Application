@@ -6,11 +6,14 @@ namespace UniAgile.Game
 {
     public static class IdentifierExtensions
     {
-        public const           string LOCAL                 = "LOCAL";
-        public const           string DYNAMIC               = "DYNAMIC";
-        public static readonly string LocalUniqueIdentifier = $"{LOCAL}-{NewGuid().ToString()}";
+        public const string LOCAL = "LOCAL";
+        public const string DYNAMIC = "DYNAMIC";
 
-        private static readonly Dictionary<string, string[]> Cache = new Dictionary<string, string[]>();
+        public static readonly string LocalUniqueIdentifier =
+            $"{LOCAL}-{NewGuid().ToString()}";
+
+        private static readonly Dictionary<string, string[]> Cache =
+            new Dictionary<string, string[]>();
 
         private static Guid NewGuid()
         {
@@ -49,7 +52,7 @@ namespace UniAgile.Game
         }
 
         public static bool HasSubIdentifier(this string thisId,
-                                            string      otherId)
+                                            string otherId)
         {
             var split = thisId.GetIdentifierTypes();
 
@@ -57,15 +60,17 @@ namespace UniAgile.Game
         }
 
         public static bool EitherIsSubIdentifier(this string thisId,
-                                                 string      identifier)
+                                                 string identifier)
         {
-            return identifier.HasSubIdentifier(thisId) || thisId.HasSubIdentifier(identifier);
+            return identifier.HasSubIdentifier(thisId)
+                   || thisId.HasSubIdentifier(identifier);
         }
 
 
         public static string GetCombinedDynamic<T, TSecond>()
         {
-            return $"{typeof(T).Name}.{typeof(TSecond).Name}.{DYNAMIC}-{Guid.NewGuid().ToString()}";
+            return
+                $"{typeof(T).Name}.{typeof(TSecond).Name}.{DYNAMIC}-{Guid.NewGuid().ToString()}";
         }
 
         public static string GetCombinedStatic<T, TSecond>()
@@ -100,7 +105,7 @@ namespace UniAgile.Game
             return $"{typeof(T).Name}.{name}";
         }
 
-        public static string GetNamed(Type   type,
+        public static string GetNamed(Type type,
                                       string name)
         {
             return $"{type.Name}.{name}";

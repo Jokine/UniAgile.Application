@@ -7,8 +7,9 @@ namespace UniAgile.Game
 {
     public static class Utility
     {
-        public static Notifiable GetOrCreateNotifiable(this IDictionary<string, Notifiable> notifiables,
-                                                       string                               key)
+        public static Notifiable GetOrCreateNotifiable(
+            this IDictionary<string, Notifiable> notifiables,
+            string key)
         {
             if (!notifiables.TryGetValue(key, out var notifiable))
             {
@@ -20,7 +21,7 @@ namespace UniAgile.Game
         }
 
         public static T OptimisticGet<T>(this IDictionary<Type, object> values,
-                                         T                              defaultValue = default)
+                                         T defaultValue = default)
         {
             try
             {
@@ -34,33 +35,37 @@ namespace UniAgile.Game
             }
         }
 
-        public static Option<TValue> GetOption<TKey, TValue>(this IDictionary<TKey, TValue> dictionary,
-                                                             TKey                           key)
+        public static Option<TValue> GetOption<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey key)
         {
             return Option<TValue>.Some(dictionary.GetOrDefault(key));
         }
 
-        public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary,
-                                                        TKey                           key)
+        public static TValue GetOrDefault<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey key)
         {
             return dictionary.TryGetValue(key, out var value) ? value : default;
         }
 
-        public static void SafeAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary,
-                                                 TKey                           key)
+        public static void SafeAdd<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey key)
             where TValue : new()
         {
             if (!dictionary.ContainsKey(key)) dictionary.Add(key, new TValue());
         }
 
 
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary,
-                                                    TKey                           key)
+        public static TValue GetOrAdd<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey key)
             where TValue : new()
         {
             if (!dictionary.TryGetValue(key, out var value))
             {
-                value           = new TValue();
+                value = new TValue();
                 dictionary[key] = value;
             }
 
@@ -68,7 +73,7 @@ namespace UniAgile.Game
         }
 
         public static T OptimisticGet<T>(this IDictionary<Type, T> values,
-                                         T                         defaultValue = default)
+                                         T defaultValue = default)
         {
             try
             {
@@ -84,8 +89,8 @@ namespace UniAgile.Game
 
 
         public static T OptimisticGet<TKey, T>(this IDictionary<TKey, T> values,
-                                               TKey                      key,
-                                               T                         defaultValue = default)
+                                               TKey key,
+                                               T defaultValue = default)
         {
             try
             {
@@ -100,40 +105,43 @@ namespace UniAgile.Game
         }
 
         public static T Get<T>(this IDictionary<Type, object> values,
-                               T                              defaultValue = default)
+                               T defaultValue = default)
         {
             var found = values.TryGetValue(typeof(T), out var value);
 
             return found ?
                        (T) value :
                        defaultValue.IsDefault() ?
-                           throw new Exception($"Unable to find key {typeof(T)} from dictionary") :
+                           throw new
+                               Exception($"Unable to find key {typeof(T)} from dictionary") :
                            defaultValue;
         }
 
         public static T Get<T>(this IDictionary<Type, T> values,
-                               T                         defaultValue = default)
+                               T defaultValue = default)
         {
             var found = values.TryGetValue(typeof(T), out var value);
 
             return found ?
                        value :
                        defaultValue.IsDefault() ?
-                           throw new Exception($"Unable to find key {typeof(T)} from dictionary") :
+                           throw new
+                               Exception($"Unable to find key {typeof(T)} from dictionary") :
                            defaultValue;
         }
 
 
         public static T Get<TKey, T>(this IDictionary<TKey, T> values,
-                                     TKey                      key,
-                                     T                         defaultValue = default)
+                                     TKey key,
+                                     T defaultValue = default)
         {
             var found = values.TryGetValue(key, out var value);
 
             return found ?
                        value :
                        defaultValue.IsDefault() ?
-                           throw new Exception($"Unable to find key {key} from dictionary") :
+                           throw new
+                               Exception($"Unable to find key {key} from dictionary") :
                            defaultValue;
         }
 
@@ -148,7 +156,8 @@ namespace UniAgile.Game
             return GetAllTypesOf(typeof(T));
         }
 
-        public static IEnumerable<Type> GetAllTypesOf<T>(Func<Type, bool> predicate)
+        public static IEnumerable<Type> GetAllTypesOf<T>(
+            Func<Type, bool> predicate)
         {
             return GetAllTypesOf(typeof(T)).Where(predicate);
         }
@@ -160,12 +169,15 @@ namespace UniAgile.Game
 
         public static IEnumerable<Type> GetAllTypes()
         {
-            return AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes());
+            return AppDomain.CurrentDomain.GetAssemblies()
+                            .SelectMany(assembly => assembly.GetTypes());
         }
 
         public static IEnumerable<Type> GetAllTypes(Func<Type, bool> predicate)
         {
-            return AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).Where(predicate);
+            return AppDomain.CurrentDomain.GetAssemblies()
+                            .SelectMany(assembly => assembly.GetTypes())
+                            .Where(predicate);
         }
 
         public static IEnumerable<Type> GetAllTypesOf(Type wantedType)
@@ -179,12 +191,15 @@ namespace UniAgile.Game
         {
             switch (member.MemberType)
             {
-                case MemberTypes.Field:    return ((FieldInfo) member).FieldType;
-                case MemberTypes.Property: return ((PropertyInfo) member).PropertyType;
-                case MemberTypes.Event:    return ((EventInfo) member).EventHandlerType;
+                case MemberTypes.Field: return ((FieldInfo) member).FieldType;
+                case MemberTypes.Property:
+                    return ((PropertyInfo) member).PropertyType;
+                case MemberTypes.Event:
+                    return ((EventInfo) member).EventHandlerType;
                 default:
-                    throw new ArgumentException("MemberInfo must be if type FieldInfo, PropertyInfo or EventInfo",
-                                                "member");
+                    throw new
+                        ArgumentException("MemberInfo must be if type FieldInfo, PropertyInfo or EventInfo",
+                                          "member");
             }
         }
     }

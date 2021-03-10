@@ -20,8 +20,10 @@ namespace UniAgile.Game
             return new Option<T>(value);
         }
 
-        public           bool IsSome => !EqualityComparer<T>.Default.Equals(Value, default);
-        private readonly T    Value;
+        public bool IsSome =>
+            !EqualityComparer<T>.Default.Equals(Value, default);
+
+        private readonly T Value;
 
         private Option(T value)
         {
@@ -39,20 +41,22 @@ namespace UniAgile.Game
     public static class OptionExtensions
     {
         public static U Match<T, U>(this Option<T> option,
-                                    Func<T, U>     onIsSome,
-                                    Func<U>        onIsNone = default)
+                                    Func<T, U> onIsSome,
+                                    Func<U> onIsNone = default)
         {
-            return option.TryGetValue(out var value) ? onIsSome(value) : onIsNone();
+            return option.TryGetValue(out var value) ?
+                       onIsSome(value) :
+                       onIsNone();
         }
 
-        public static Option<U> And<T, U>(this Option<T>     option,
+        public static Option<U> And<T, U>(this Option<T> option,
                                           Func<T, Option<U>> binder)
         {
             return option.Bind(binder);
         }
 
 
-        public static Option<U> Bind<T, U>(this Option<T>     option,
+        public static Option<U> Bind<T, U>(this Option<T> option,
                                            Func<T, Option<U>> binder)
         {
             return option.Match(
@@ -61,21 +65,22 @@ namespace UniAgile.Game
         }
 
         public static Option<U> Map<T, U>(this Option<T> option,
-                                          Func<T, U>     mapper)
+                                          Func<T, U> mapper)
         {
             return option.Bind(
                                value => Option<U>.Some(mapper(value)));
         }
 
         public static Option<T> Filter<T>(this Option<T> option,
-                                          Predicate<T>   predicate)
+                                          Predicate<T> predicate)
         {
             return option.Bind(
-                               value => predicate(value) ? option : Option<T>.None);
+                               value =>
+                                   predicate(value) ? option : Option<T>.None);
         }
 
         public static T DefaultValue<T>(this Option<T> option,
-                                        T              defaultValue)
+                                        T defaultValue)
         {
             return option.Match(
                                 value => value,
