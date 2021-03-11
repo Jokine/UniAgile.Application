@@ -12,13 +12,14 @@ namespace UniAgile.Game
     public class Application
     {
         public Application(ApplicationModel applicationModel,
-                           List<IDependencyInfo> dependencyList)
+                           List<IDependencyInfo> dependencyList,
+                            List<Func<IDependencyService, Type, IDependencyInfo>> automaticRules)
         {
             ApplicationModel = applicationModel;
 
             dependencyList.Add(new DependencyInfo<ApplicationModel>(ioc => ApplicationModel));
 
-            DependencyService = new DependencyService(dependencyList);
+            DependencyService = new DependencyService(dependencyList, automaticRules);
         }
 
         public IDependencyService DependencyService { get; }

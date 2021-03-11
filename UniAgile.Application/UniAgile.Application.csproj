@@ -8,7 +8,7 @@
         <PackageReleaseNotes>Automatic rules for dependency service</PackageReleaseNotes>
         <Configurations>Debug;Release;Unity</Configurations>
         <Platforms>AnyCPU</Platforms>
-        <PackageVersion>1.2.0</PackageVersion>
+        <PackageVersion>1.2.1</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
