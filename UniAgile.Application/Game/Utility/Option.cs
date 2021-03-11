@@ -20,8 +20,7 @@ namespace UniAgile.Game
             return new Option<T>(value);
         }
 
-        public bool IsSome =>
-            !EqualityComparer<T>.Default.Equals(Value, default);
+        public bool IsSome => !EqualityComparer<T>.Default.Equals(Value, default);
 
         private readonly T Value;
 
@@ -44,9 +43,7 @@ namespace UniAgile.Game
                                     Func<T, U> onIsSome,
                                     Func<U> onIsNone = default)
         {
-            return option.TryGetValue(out var value) ?
-                       onIsSome(value) :
-                       onIsNone();
+            return option.TryGetValue(out var value) ? onIsSome(value) : onIsNone();
         }
 
         public static Option<U> And<T, U>(this Option<T> option,
@@ -59,32 +56,25 @@ namespace UniAgile.Game
         public static Option<U> Bind<T, U>(this Option<T> option,
                                            Func<T, Option<U>> binder)
         {
-            return option.Match(
-                                binder,
-                                () => Option<U>.None);
+            return option.Match(binder, () => Option<U>.None);
         }
 
         public static Option<U> Map<T, U>(this Option<T> option,
                                           Func<T, U> mapper)
         {
-            return option.Bind(
-                               value => Option<U>.Some(mapper(value)));
+            return option.Bind(value => Option<U>.Some(mapper(value)));
         }
 
         public static Option<T> Filter<T>(this Option<T> option,
                                           Predicate<T> predicate)
         {
-            return option.Bind(
-                               value =>
-                                   predicate(value) ? option : Option<T>.None);
+            return option.Bind(value => predicate(value) ? option : Option<T>.None);
         }
 
         public static T DefaultValue<T>(this Option<T> option,
                                         T defaultValue)
         {
-            return option.Match(
-                                value => value,
-                                () => defaultValue);
+            return option.Match(value => value, () => defaultValue);
         }
     }
 }

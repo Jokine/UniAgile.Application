@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UniAgile.Dependency;
+using UniAgile.Game;
 using UniAgile.Testing;
 using Xunit;
 
@@ -13,11 +16,9 @@ namespace UniAgile.Application.Tests.DependencyServiceTests
             var factoryMethod = MockData.function_which_returns<Unit>();
             var dependencyList = new List<IDependencyInfo>();
 
-            dependencyList.Add(new DependencyInfo<Unit>(s => factoryMethod
-                                   .Object()));
+            dependencyList.Add(new DependencyInfo<Unit>(s => factoryMethod.Object()));
 
-            IDependencyService dependencyService =
-                new DependencyService(dependencyList);
+            IDependencyService dependencyService = new DependencyService(dependencyList);
 
             var outcome = dependencyService.Resolve<Unit>();
 
@@ -31,11 +32,9 @@ namespace UniAgile.Application.Tests.DependencyServiceTests
             var factoryMethod = MockData.function_which_returns<Unit>();
             var dependencyList = new List<IDependencyInfo>();
 
-            dependencyList.Add(new DependencyInfo<Unit>(s => factoryMethod
-                                   .Object()));
+            dependencyList.Add(new DependencyInfo<Unit>(s => factoryMethod.Object()));
 
-            IDependencyService dependencyService =
-                new DependencyService(dependencyList);
+            IDependencyService dependencyService = new DependencyService(dependencyList);
 
             var outcome1 = dependencyService.Resolve<Unit>();
             var outcome2 = dependencyService.Resolve<Unit>();
@@ -44,13 +43,11 @@ namespace UniAgile.Application.Tests.DependencyServiceTests
         }
 
         [Fact]
-        public void
-            Dependency_service_can_resolve_concrete_classes_without_registering()
+        public void Dependency_service_can_resolve_concrete_classes_without_registering()
         {
             var dependencyList = new List<IDependencyInfo>();
 
-            IDependencyService dependencyService =
-                new DependencyService(dependencyList);
+            IDependencyService dependencyService = new DependencyService(dependencyList);
 
             var outcome = dependencyService.Resolve<Unit>();
 
@@ -63,12 +60,9 @@ namespace UniAgile.Application.Tests.DependencyServiceTests
             var factoryMethod = MockData.function_which_returns<Unit>();
             var dependencyList = new List<IDependencyInfo>();
 
-            dependencyList.Add(new DependencyInfo<Unit>(s => factoryMethod
-                                       .Object(),
-                                   true));
+            dependencyList.Add(new DependencyInfo<Unit>(s => factoryMethod.Object(), true));
 
-            IDependencyService dependencyService =
-                new DependencyService(dependencyList);
+            IDependencyService dependencyService = new DependencyService(dependencyList);
 
             factoryMethod.is_not_called();
 
@@ -76,6 +70,35 @@ namespace UniAgile.Application.Tests.DependencyServiceTests
             outcome.is_not_null();
 
             factoryMethod.is_called_once();
+        }
+        private class TestClass
+        {
+            public readonly IDictionary<string, int> Repo;
+            public readonly IReadOnlyDictionary<string, int> ReadOnlyRepo;
+
+            public TestClass(IDictionary<string, int> repo, IReadOnlyDictionary<string, int> readOnlyRepo)
+            {
+                Repo = repo;
+                ReadOnlyRepo = readOnlyRepo;
+            }   
+        }
+        
+
+        [Fact]
+        public void Dependency_service_can_add_automatic_resolving_rules()
+        {
+            var dependencyList = new List<IDependencyInfo>();
+            dependencyList.Register(service => new ApplicationModel(new IRepository[0]));
+            var automaticRules = new List<Func<IDependencyService, Type, IDependencyInfo>>();
+            
+            automaticRules.ApplyRepositoryRule();
+
+            var dependencyService = new DependencyService(dependencyList, automaticRules);
+
+            var test = dependencyService.Resolve<TestClass>();
+            Assert.NotNull(test);
+            Assert.NotNull(test.Repo);
+            Assert.NotNull(test.ReadOnlyRepo);
         }
     }
 }

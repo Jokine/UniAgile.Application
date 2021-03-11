@@ -12,11 +12,16 @@ namespace UniAgile.Game
         {
             Repositories = new Dictionary<Type, IRepository>(repositories.Count);
 
-            foreach (var repository in repositories) Repositories.Add(repository.RepositoryType, repository);
+            foreach (var repository in repositories)
+            {
+                Repositories.Add(repository.RepositoryType, repository);
+            }
         }
 
-        private readonly List<INotifiableDataChange>     NotifiableDataChangesCachedList = new List<INotifiableDataChange>();
-        private readonly IDictionary<string, Notifiable> Notifiables                     = new Dictionary<string, Notifiable>();
+        private readonly List<INotifiableDataChange> NotifiableDataChangesCachedList =
+            new List<INotifiableDataChange>();
+
+        private readonly IDictionary<string, Notifiable> Notifiables = new Dictionary<string, Notifiable>();
 
         private readonly IDictionary<Type, IRepository> Repositories;
 
@@ -32,7 +37,8 @@ namespace UniAgile.Game
 
         public IEnumerator<KeyValuePair<string, INotifyCollectionChanged>> GetEnumerator()
         {
-            return Notifiables.Select(kvp => new KeyValuePair<string, INotifyCollectionChanged>(kvp.Key, kvp.Value)).GetEnumerator();
+            return Notifiables.Select(kvp => new KeyValuePair<string, INotifyCollectionChanged>(kvp.Key, kvp.Value))
+                              .GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -47,7 +53,7 @@ namespace UniAgile.Game
             return Notifiables.ContainsKey(key);
         }
 
-        public bool TryGetValue(string                       key,
+        public bool TryGetValue(string key,
                                 out INotifyCollectionChanged value)
         {
             if (!Notifiables.TryGetValue(key, out var notifiable))
@@ -62,8 +68,10 @@ namespace UniAgile.Game
             return true;
         }
 
-        public IEnumerable<string>                   Keys   => Notifiables.Keys;
-        public IEnumerable<INotifyCollectionChanged> Values => Notifiables.Select(kvp => (INotifyCollectionChanged) kvp.Value);
+        public IEnumerable<string> Keys => Notifiables.Keys;
+
+        public IEnumerable<INotifyCollectionChanged> Values =>
+            Notifiables.Select(kvp => (INotifyCollectionChanged) kvp.Value);
 
         public IDictionary<string, T> GetRepository<T>()
             where T : struct
@@ -72,21 +80,37 @@ namespace UniAgile.Game
             {
                 repository = new Repository<T>();
                 Repositories.Add(typeof(T), repository);
-                
             }
-            
+
             return (Repository<T>) repository;
+        }
+        
+        public object GetRepository(Type type)
+        {
+            if (!Repositories.TryGetValue(type, out var repository))
+            {
+                var uncastRepo = Activator.CreateInstance(typeof(Repository<>).MakeGenericType(type));
+                repository = (IRepository) uncastRepo;
+                Repositories.Add(type, repository);
+            }
+
+            return repository;
         }
 
         public void NotifyChanges()
         {
-            foreach (var repoKvp in Repositories) repoKvp.Value.PopDataChangesNonAlloc(Notifiables, NotifiableDataChangesCachedList);
+            foreach (var repoKvp in Repositories)
+            {
+                repoKvp.Value.PopDataChangesNonAlloc(Notifiables, NotifiableDataChangesCachedList);
+            }
 
             for (var i = 0; i < NotifiableDataChangesCachedList.Count; i++)
+            {
                 using (var notifiableDataChange = NotifiableDataChangesCachedList[i])
                 {
                     notifiableDataChange.Notify();
                 }
+            }
 
             // can be possibly optimized with reverse for loop and removal while iterating
             NotifiableDataChangesCachedList.Clear();

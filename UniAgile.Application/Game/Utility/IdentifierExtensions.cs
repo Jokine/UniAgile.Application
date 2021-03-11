@@ -9,11 +9,9 @@ namespace UniAgile.Game
         public const string LOCAL = "LOCAL";
         public const string DYNAMIC = "DYNAMIC";
 
-        public static readonly string LocalUniqueIdentifier =
-            $"{LOCAL}-{NewGuid().ToString()}";
+        public static readonly string LocalUniqueIdentifier = $"{LOCAL}-{NewGuid().ToString()}";
 
-        private static readonly Dictionary<string, string[]> Cache =
-            new Dictionary<string, string[]>();
+        private static readonly Dictionary<string, string[]> Cache = new Dictionary<string, string[]>();
 
         private static Guid NewGuid()
         {
@@ -62,15 +60,13 @@ namespace UniAgile.Game
         public static bool EitherIsSubIdentifier(this string thisId,
                                                  string identifier)
         {
-            return identifier.HasSubIdentifier(thisId)
-                   || thisId.HasSubIdentifier(identifier);
+            return identifier.HasSubIdentifier(thisId) || thisId.HasSubIdentifier(identifier);
         }
 
 
         public static string GetCombinedDynamic<T, TSecond>()
         {
-            return
-                $"{typeof(T).Name}.{typeof(TSecond).Name}.{DYNAMIC}-{Guid.NewGuid().ToString()}";
+            return $"{typeof(T).Name}.{typeof(TSecond).Name}.{DYNAMIC}-{Guid.NewGuid().ToString()}";
         }
 
         public static string GetCombinedStatic<T, TSecond>()

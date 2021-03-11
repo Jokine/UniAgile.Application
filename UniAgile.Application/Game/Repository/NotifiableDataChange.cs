@@ -11,7 +11,8 @@ namespace UniAgile.Game
     public class Notifiable : INotifyCollectionChanged
 
     {
-        private static readonly NotifyCollectionChangedEventArgs DummyArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+        private static readonly NotifyCollectionChangedEventArgs DummyArgs =
+            new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -29,7 +30,7 @@ namespace UniAgile.Game
     internal class NotifiableDataChange<T> : INotifiableDataChange, IDataChange<T>
         where T : struct
     {
-        public NotifiableDataChange(Notifiable    notifiable,
+        public NotifiableDataChange(Notifiable notifiable,
                                     DataChange<T> dataChange)
         {
             Notifiable = notifiable ?? throw new NullReferenceException();

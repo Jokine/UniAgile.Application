@@ -5,19 +5,14 @@ using System.Linq;
 
 namespace UniAgile.Game
 {
-    public class Repository<T> : IDictionary<string, T>,
-                                 IReadOnlyDictionary<string, T>,
-                                 IRepository
+    public class Repository<T> : IDictionary<string, T>, IReadOnlyDictionary<string, T>, IRepository
         where T : struct
     {
-        private readonly IDictionary<string, string> ChangeCache =
-            new Dictionary<string, string>();
+        private readonly IDictionary<string, string> ChangeCache = new Dictionary<string, string>();
 
-        private readonly IDictionary<string, T> CurrentData =
-            new Dictionary<string, T>();
+        private readonly IDictionary<string, T> CurrentData = new Dictionary<string, T>();
 
-        private readonly List<DataChange<T>> DataChanges =
-            new List<DataChange<T>>();
+        private readonly List<DataChange<T>> DataChanges = new List<DataChange<T>>();
 
 
         public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
@@ -72,7 +67,9 @@ namespace UniAgile.Game
                         T value)
         {
             if (CurrentData.ContainsKey(key))
+            {
                 throw new Exception($"{typeof(T)} already has key {key}");
+            }
 
 
             CurrentData[key] = value;
@@ -97,7 +94,10 @@ namespace UniAgile.Game
         {
             T currentValue = default;
 
-            if (!CurrentData.TryGetValue(key, out currentValue)) return false;
+            if (!CurrentData.TryGetValue(key, out currentValue))
+            {
+                return false;
+            }
 
             CurrentData.Remove(key);
 
@@ -147,19 +147,19 @@ namespace UniAgile.Game
 
         IEnumerable<T> IReadOnlyDictionary<string, T>.Values => Values;
 
-        public void PopDataChangesNonAlloc(
-            IDictionary<string, Notifiable> notifiables,
-            List<INotifiableDataChange> list)
+        public void PopDataChangesNonAlloc(IDictionary<string, Notifiable> notifiables,
+                                           List<INotifiableDataChange> list)
         {
             for (var i = DataChanges.Count - 1; i >= 0; i--)
             {
                 var dc = DataChanges[i];
 
-                if (ChangeCache.ContainsKey(dc.Id)) continue;
+                if (ChangeCache.ContainsKey(dc.Id))
+                {
+                    continue;
+                }
 
-                var notifiableDataChange = new NotifiableDataChange<T>(
-                 notifiables.GetOrCreateNotifiable(dc.Id),
-                 dc);
+                var notifiableDataChange = new NotifiableDataChange<T>(notifiables.GetOrCreateNotifiable(dc.Id), dc);
 
                 ChangeCache.Add(dc.Id, dc.Id);
                 list.Add(notifiableDataChange);
@@ -175,8 +175,7 @@ namespace UniAgile.Game
 
         private static void HandleDataChanges(string key,
                                               T value,
-                                              IDictionary<string, T>
-                                                  currentData,
+                                              IDictionary<string, T> currentData,
                                               List<DataChange<T>> changes)
         {
             if (currentData.TryGetValue(key, out var currentValue))
@@ -211,7 +210,10 @@ namespace UniAgile.Game
         public void AddRange(IEnumerable<T> enumerable,
                              Func<T, string> idSelector)
         {
-            foreach (var e in enumerable) Add(idSelector(e), e);
+            foreach (var e in enumerable)
+            {
+                Add(idSelector(e), e);
+            }
         }
     }
 }

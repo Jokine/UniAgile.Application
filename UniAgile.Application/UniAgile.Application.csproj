@@ -5,10 +5,10 @@
         <Title>UniAgile.Application</Title>
         <PackageProjectUrl>https://github.com/Jokine/UniAgile.Application</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Jokine/UniAgile.Application</RepositoryUrl>
-        <PackageReleaseNotes>Dynamic repositories</PackageReleaseNotes>
+        <PackageReleaseNotes>Automatic rules for dependency service</PackageReleaseNotes>
         <Configurations>Debug;Release;Unity</Configurations>
         <Platforms>AnyCPU</Platforms>
-        <PackageVersion>1.1.2</PackageVersion>
+        <PackageVersion>1.2.0</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
