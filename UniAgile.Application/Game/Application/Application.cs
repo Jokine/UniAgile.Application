@@ -23,7 +23,7 @@ namespace UniAgile.Game
         }
 
         public IDependencyService DependencyService { get; }
-        public ApplicationModel ApplicationModel { get; }
+        public ApplicationModel ApplicationModel { get; protected set; }
 
         public virtual void Start()
         {
