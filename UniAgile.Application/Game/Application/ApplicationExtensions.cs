@@ -13,6 +13,12 @@ namespace UniAgile.Game
             automaticRules.Add(CreateDependencyInfoForDictionaryValueTypeOrDefault);
         }
 
+        public static void ApplyIntegrationRule(
+            this List<Func<IDependencyService, Type, IDependencyInfo>> automaticRules)
+        {
+            automaticRules.Add(CreateDependencyInfoForDictionaryInterfaceOrDefault);
+        }
+
         private static bool IsAnyDictionary(Type genericTypeDefinition)
         {
             return genericTypeDefinition == typeof(IDictionary<,>)
@@ -22,6 +28,42 @@ namespace UniAgile.Game
         private static bool IsAnyList(Type genericTypeDefinition)
         {
             return genericTypeDefinition == typeof(List<>) || genericTypeDefinition == typeof(IReadOnlyList<>);
+        }
+
+        private static IDependencyInfo CreateDependencyInfoForDictionaryInterfaceOrDefault(
+            IDependencyService dependencyService,
+            Type type)
+        {
+            if (type.IsGenericType
+                && IsAnyDictionary(type.GetGenericTypeDefinition()))
+            {
+                // taking the second type which is for value
+                var listType = type.GetGenericArguments()[1];
+
+                if (!listType.IsGenericType
+                    && !IsAnyList(type.GetGenericTypeDefinition()))
+                {
+                    return default;
+                }
+
+
+                return new DependencyInfo(type, service => service.Resolve(listType));
+            }
+
+            return default;
+        }
+
+        public static void RegisterIntegration<T>(this List<IDependencyInfo> dependencies,
+                                                  IReadOnlyList<(string Id, Type ImplementationType,
+                                                      Func<IDependencyService, T> Factory)> integrations)
+            where T : class
+        {
+            foreach (var integration in integrations)
+            {
+                dependencies.Add(new DependencyInfo(integration.ImplementationType, integration.Factory));
+            }
+
+            dependencies.Register(service => new Integrations<T>(service, integrations));
         }
 
         private static IDependencyInfo CreateDependencyInfoForDictionaryValueTypeOrDefault(
@@ -44,12 +86,6 @@ namespace UniAgile.Game
             }
 
             return default;
-        }
-
-        public static void RegisterIntegration<T>(this List<IDependencyInfo> dependencies, IReadOnlyList<KeyValuePair<string, T>> integrations)
-            where T : class
-        {
-            dependencies.Register(service => new Integrations<T>(integrations));
         }
 
         public static void Register<T>(this List<IDependencyInfo> dependencies,
