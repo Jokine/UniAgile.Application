@@ -25,6 +25,17 @@ namespace UniAgile.Game
         public IDependencyService DependencyService { get; }
         public ApplicationModel ApplicationModel { get; protected set; }
 
+        protected T Get<T>()
+        {
+            return DependencyService.Resolve<T>();
+        }
+
+        protected IDictionary<string, T> GetRepository<T>()
+            where T : struct
+        {
+            return ApplicationModel.GetRepository<T>();
+        }
+
         public virtual void Start()
         {
         }
