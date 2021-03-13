@@ -7,11 +7,8 @@ namespace UniAgile.Game.Integration
     public class Integrations<T>
         where T : class
     {
-        public Integrations(List<IDependencyInfo> dependencyInfos,
-                            IReadOnlyList<KeyValuePair<string, T>> integrations)
+        public Integrations(IReadOnlyList<KeyValuePair<string, T>> integrations)
         {
-            dependencyInfos.Add(new DependencyInfo<Integrations<T>>(service => this));
-
             foreach (var integration in integrations)
             {
                 try
