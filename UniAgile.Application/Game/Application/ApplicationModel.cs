@@ -84,7 +84,7 @@ namespace UniAgile.Game
 
             return (Repository<T>) repository;
         }
-        
+
         public object GetRepository(Type type)
         {
             if (!Repositories.TryGetValue(type, out var repository))

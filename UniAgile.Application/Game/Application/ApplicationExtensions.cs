@@ -12,11 +12,46 @@ namespace UniAgile.Game
             automaticRules.Add(CreateDependencyInfoForDictionaryValueTypeOrDefault);
         }
 
+        public static void ApplyIntegrationRule(
+            this List<Func<IDependencyService, Type, IDependencyInfo>> automaticRules)
+        {
+            automaticRules.Add(CreateDependencyInfoForDictionaryInterfaceOrDefault);
+        }
+
         private static bool IsAnyDictionary(Type genericTypeDefinition)
         {
             return genericTypeDefinition == typeof(IDictionary<,>)
                    || genericTypeDefinition == typeof(IReadOnlyDictionary<,>);
         }
+
+        private static bool IsAnyList(Type genericTypeDefinition)
+        {
+            return genericTypeDefinition == typeof(List<>) || genericTypeDefinition == typeof(IReadOnlyList<>);
+        }
+
+        private static IDependencyInfo CreateDependencyInfoForDictionaryInterfaceOrDefault(
+            IDependencyService dependencyService,
+            Type type)
+        {
+            if (type.IsGenericType
+                && IsAnyDictionary(type.GetGenericTypeDefinition()))
+            {
+                // taking the second type which is for value
+                var listType = type.GetGenericArguments()[1];
+
+                if (!listType.IsGenericType
+                    && !IsAnyList(type.GetGenericTypeDefinition()))
+                {
+                    return default;
+                }
+
+
+                return new DependencyInfo(type, service => service.Resolve(listType));
+            }
+
+            return default;
+        }
+
         private static IDependencyInfo CreateDependencyInfoForDictionaryValueTypeOrDefault(
             IDependencyService dependencyService,
             Type type)
@@ -25,8 +60,12 @@ namespace UniAgile.Game
                 && IsAnyDictionary(type.GetGenericTypeDefinition()))
             {
                 // taking the second type which is for value
-                var appModel = dependencyService.Resolve<ApplicationModel>();
                 var valueType = type.GetGenericArguments()[1];
+
+                if (!valueType.IsValueType)
+                {
+                    return default;
+                }
 
                 return new DependencyInfo(type,
                                           service => service.Resolve<ApplicationModel>().GetRepository(valueType));

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UniAgile.Dependency;
 using UniAgile.Game;
 using UniAgile.Testing;
@@ -71,18 +70,7 @@ namespace UniAgile.Application.Tests.DependencyServiceTests
 
             factoryMethod.is_called_once();
         }
-        private class TestClass
-        {
-            public readonly IDictionary<string, int> Repo;
-            public readonly IReadOnlyDictionary<string, int> ReadOnlyRepo;
 
-            public TestClass(IDictionary<string, int> repo, IReadOnlyDictionary<string, int> readOnlyRepo)
-            {
-                Repo = repo;
-                ReadOnlyRepo = readOnlyRepo;
-            }   
-        }
-        
 
         [Fact]
         public void Dependency_service_can_add_automatic_resolving_rules()
@@ -90,7 +78,7 @@ namespace UniAgile.Application.Tests.DependencyServiceTests
             var dependencyList = new List<IDependencyInfo>();
             dependencyList.Register(service => new ApplicationModel(new IRepository[0]));
             var automaticRules = new List<Func<IDependencyService, Type, IDependencyInfo>>();
-            
+
             automaticRules.ApplyRepositoryRule();
 
             var dependencyService = new DependencyService(dependencyList, automaticRules);
@@ -99,6 +87,19 @@ namespace UniAgile.Application.Tests.DependencyServiceTests
             Assert.NotNull(test);
             Assert.NotNull(test.Repo);
             Assert.NotNull(test.ReadOnlyRepo);
+        }
+
+        private class TestClass
+        {
+            public TestClass(IDictionary<string, int> repo,
+                             IReadOnlyDictionary<string, int> readOnlyRepo)
+            {
+                Repo = repo;
+                ReadOnlyRepo = readOnlyRepo;
+            }
+
+            public readonly IReadOnlyDictionary<string, int> ReadOnlyRepo;
+            public readonly IDictionary<string, int> Repo;
         }
     }
 }

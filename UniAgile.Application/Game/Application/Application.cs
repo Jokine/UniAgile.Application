@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UniAgile.Dependency;
+using UniAgile.Game.Integration;
 
 // ReSharper disable VirtualMemberCallInConstructor
 
@@ -13,7 +14,7 @@ namespace UniAgile.Game
     {
         public Application(ApplicationModel applicationModel,
                            List<IDependencyInfo> dependencyList,
-                            List<Func<IDependencyService, Type, IDependencyInfo>> automaticRules)
+                           List<Func<IDependencyService, Type, IDependencyInfo>> automaticRules)
         {
             ApplicationModel = applicationModel;
 
@@ -34,6 +35,19 @@ namespace UniAgile.Game
             where T : struct
         {
             return ApplicationModel.GetRepository<T>();
+        }
+
+        protected IReadOnlyDictionary<string, T> GetIntegrations<T>()
+            where T : class
+        {
+            try
+            {
+                return DependencyService.Resolve<Integrations<T>>().IntegrationMappings;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Cannot find integration of type {typeof(T)}. Message {e.Message}");
+            }
         }
 
         public virtual void Start()
