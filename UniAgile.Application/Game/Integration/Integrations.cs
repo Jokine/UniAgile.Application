@@ -8,7 +8,7 @@ namespace UniAgile.Game.Integration
         where T : class
     {
         public Integrations(IDependencyService dependencyService,
-                            IReadOnlyList<(string Id, Type ImplementationType, Func<IDependencyService, T> Factory)>
+                            IReadOnlyList<(string Id, Type ImplementationType)>
                                 integrationTypes)
         {
             DependencyService = dependencyService;
@@ -17,7 +17,7 @@ namespace UniAgile.Game.Integration
 
         private readonly IDependencyService DependencyService;
 
-        private readonly IReadOnlyList<(string Id, Type ImplementationType, Func<IDependencyService, T> Factory)>
+        private readonly IReadOnlyList<(string Id, Type ImplementationType)>
             IntegrationTypes;
 
         private Dictionary<string, T> IntegrationMappingsField;
