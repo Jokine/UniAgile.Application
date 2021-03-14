@@ -46,7 +46,7 @@ namespace UniAgile.Game
             }
             catch (Exception e)
             {
-                throw new Exception($"Cannot find integration of type {typeof(T)}. Message {e.Message}");
+                throw new Exception($"Cannot find integration of type {typeof(T)}. Message {e}");
             }
         }
 

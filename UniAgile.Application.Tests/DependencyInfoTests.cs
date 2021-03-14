@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Moq;
 using UniAgile.Dependency;
 using UniAgile.Game;
+using UniAgile.Game.Integration;
 using UniAgile.Testing;
 using Xunit;
 
@@ -69,6 +71,42 @@ namespace UniAgile.Application.Tests.DependencyServiceTests
             outcome.is_not_null();
 
             factoryMethod.is_called_once();
+        }
+
+        [Fact]
+        public void Dependency_service_can_register_integrations()
+        {
+            var dependencyList = new List<IDependencyInfo>();
+            var test1Key = "Test1";
+            var test2Key = "Test2";
+            
+            dependencyList.RegisterIntegration<ITestIntegration>(new []
+            {
+                ApplicationExtensions.CreateIntegration<TestIntegration1>(test1Key),
+                ApplicationExtensions.CreateIntegration<TestIntegration2>(test2Key)
+            });
+
+
+            var dependencyService = new DependencyService(dependencyList);
+
+            var integration = dependencyService.Resolve<Integrations<ITestIntegration>>();
+            Assert.Equal(typeof(TestIntegration1), integration.IntegrationMappings[test1Key].GetType());
+            Assert.Equal(typeof(TestIntegration2), integration.IntegrationMappings[test2Key].GetType());
+        }
+
+        public class TestIntegration1 : ITestIntegration
+        {
+            
+        }
+        
+        public class TestIntegration2 : ITestIntegration
+        {
+            
+        }
+        
+        public interface ITestIntegration
+        {
+            
         }
 
 
